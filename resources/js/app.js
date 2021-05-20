@@ -21,6 +21,7 @@ window.Vue = require('vue').default;
 
 Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 Vue.component('factura', require('./components/FacturaComponent.vue').default);
+Vue.component('listarfactura', require('./components/listarFactura.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

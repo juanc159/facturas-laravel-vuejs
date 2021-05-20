@@ -23,3 +23,4 @@ Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::resource('facturas',FacturaController::class)->middleware('auth');
+Route::get('/listarFacturas', [FacturaController::class, 'listarFacturas'])->name('listarFacturas');

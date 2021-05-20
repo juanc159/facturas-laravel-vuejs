@@ -76,7 +76,7 @@
         },
         created(){
         },
-        methods:{    
+        methods:{
             guardarFactura(){
                 if(this.factura.idEmisor <= 0 || this.factura.idComprador <= 0  || this.factura.iva <= 0){
                     alert('Debes completar todos los campos antes de guardar');

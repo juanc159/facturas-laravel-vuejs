@@ -23,6 +23,10 @@ class FacturaController extends Controller
         }
     }
 
+    public function listarFacturas(){
+        return Facturas::all();
+    }
+
      
     /**
      * Store a newly created resource in storage.
