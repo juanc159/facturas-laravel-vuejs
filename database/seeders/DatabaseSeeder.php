@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Comprador;
+use App\Models\Producto;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -15,8 +16,8 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // \App\Models\User::factory(10)->create(); 
-        Comprador::factory()->count(10)->make();
-
-        //$this->call(EmisorSeeder::class);
+        Comprador::factory(10)->create(); 
+        $this->call(EmisorSeeder::class);
+        $this->call(ProductosSeeder::class);
     }
 }

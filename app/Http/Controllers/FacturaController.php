@@ -59,6 +59,7 @@ class FacturaController extends Controller
         
 
         return $factura;
+        
     }
 
     /**

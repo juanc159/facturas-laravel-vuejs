@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\CompradorController;
+use App\Http\Controllers\EmisorController;
 use App\Http\Controllers\FacturaController;
+use App\Http\Controllers\ProductosController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,3 +27,6 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 Route::resource('facturas',FacturaController::class)->middleware('auth');
 Route::get('/listarFacturas', [FacturaController::class, 'listarFacturas'])->name('listarFacturas');
+Route::get('/listarEmisores', [EmisorController::class, 'index'])->name('listarEmisores');
+Route::get('/listarCompradores', [CompradorController::class, 'index'])->name('listarCompradores');
+Route::get('/listarProductos', [ProductosController::class, 'index'])->name('listarProductos');

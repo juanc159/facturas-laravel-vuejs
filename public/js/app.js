@@ -1932,15 +1932,35 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   data: function data() {
     return {
+      emisores: [],
+      compradores: [],
+      inputProductos: [],
       editarActivo: false,
       precio: 0,
       sumatoria: 0,
       productos: [],
       producto: {
         idProducto: '',
+        nombreProducto: '',
         cantidadProducto: 0,
         valorUnitario: 0,
         valorTotal: 0
@@ -1956,10 +1976,23 @@ __webpack_require__.r(__webpack_exports__);
       }
     };
   },
-  created: function created() {},
+  created: function created() {
+    this.cargarDatos();
+  },
   methods: {
-    guardarFactura: function guardarFactura() {
+    cargarDatos: function cargarDatos() {
       var _this = this;
+
+      axios.get('listarEmisores').then(function (res) {
+        _this.emisores = res.data;
+      }), axios.get('listarCompradores').then(function (res) {
+        _this.compradores = res.data;
+      }), axios.get('listarProductos').then(function (res) {
+        _this.inputProductos = res.data;
+      });
+    },
+    guardarFactura: function guardarFactura() {
+      var _this2 = this;
 
       if (this.factura.idEmisor <= 0 || this.factura.idComprador <= 0 || this.factura.iva <= 0) {
         alert('Debes completar todos los campos antes de guardar');
@@ -1977,25 +2010,34 @@ __webpack_require__.r(__webpack_exports__);
       };
       axios.post('facturas', parametros).then(function (res) {
         console.log('exito');
-        _this.factura.idEmisor = '';
-        _this.factura.idComprador = '';
-        _this.factura.iva = '';
-        _this.factura.valorFinal = '';
-        _this.productos = '';
+        _this2.factura.idEmisor = '';
+        _this2.factura.idComprador = '';
+        _this2.factura.iva = '';
+        _this2.factura.valorFinal = '';
+        _this2.productos = '';
+        window.location = "/home";
       });
     },
     agregarProducto: function agregarProducto() {
-      var _this2 = this;
+      var _this3 = this;
 
-      if (this.producto.idProducto.trim() === '' || this.producto.cantidadProducto <= 0 || this.producto.valorUnitario <= 0) {
+      if (this.producto.idProducto === '' || this.producto.cantidadProducto <= 0) {
         alert('Revise los campos que desea Guardar');
         return;
       }
 
+      this.inputProductos.forEach(function (element) {
+        //console.log(element.nombreProducto);
+        if (element.id === _this3.producto.idProducto) {
+          _this3.producto.nombreProducto = element.nombreProducto;
+          _this3.producto.valorUnitario = element.valorUnitario;
+        }
+      });
       this.precio = this.producto.valorUnitario * this.producto.cantidadProducto;
       this.producto.valorTotal = this.precio;
       var parametros = {
         idProducto: this.producto.idProducto,
+        nombreProducto: this.producto.nombreProducto,
         cantidadProducto: this.producto.cantidadProducto,
         valorUnitario: this.producto.valorUnitario,
         valorTotal: this.producto.valorTotal
@@ -2003,9 +2045,9 @@ __webpack_require__.r(__webpack_exports__);
       this.productos.push(parametros);
       this.sumatoria = 0;
       this.productos.forEach(function (element) {
-        _this2.sumatoria = _this2.sumatoria + element.valorTotal;
+        _this3.sumatoria = _this3.sumatoria + element.valorTotal;
       });
-      console.log(this.sumatoria);
+      console.log(this.productos);
       this.producto.idProducto = '';
       this.producto.cantidadProducto = '';
       this.producto.valorUnitario = '';
@@ -2059,29 +2101,61 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   data: function data() {
     return {
-      facturas: []
+      facturas: [],
+      compradores: [],
+      emisores: []
     };
   },
   created: function created() {
+    this.cargarDatos();
     this.getFacturas();
   },
   methods: {
+    cargarDatos: function cargarDatos() {
+      var _this = this;
+
+      axios.get('listarEmisores').then(function (res) {
+        _this.emisores = res.data;
+      }), axios.get('listarCompradores').then(function (res) {
+        _this.compradores = res.data;
+      });
+    },
     tabla: function tabla() {
       this.$nextTick(function () {
         $('#example').DataTable();
       });
     },
     getFacturas: function getFacturas() {
-      var _this = this;
+      var _this2 = this;
 
       axios.get('listarFacturas').then(function (res) {
-        _this.facturas = res.data;
+        // listatodas las facturas de la tabla factura
+        _this2.facturas = res.data;
 
-        _this.tabla();
+        _this2.facturas.forEach(function (element) {
+          _this2.emisores.forEach(function (element1) {
+            //element1 = emisores
+            if (element1.id === element.idEmisor) {
+              //elemento = facturas
+              element.idEmisor = element1.nombreEmisor;
+            }
+          });
+
+          _this2.compradores.forEach(function (element2) {
+            if (element2.id === element.idComprador) {
+              element.idComprador = element2.nombreComprador;
+            }
+          });
+        });
+
+        console.log(_this2.facturas); //ya 
+
+        _this2.tabla();
       });
     }
   }
@@ -53404,54 +53478,103 @@ var render = function() {
             _vm._m(0),
             _vm._v(" "),
             _c("div", [
-              _c("input", {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.factura.idEmisor,
-                    expression: "factura.idEmisor"
-                  }
-                ],
-                staticClass: "form-control mb-2",
-                attrs: { type: "text", placeholder: "Emisor" },
-                domProps: { value: _vm.factura.idEmisor },
-                on: {
-                  input: function($event) {
-                    if ($event.target.composing) {
-                      return
+              _vm._v(
+                "\n                        Emisor:\n                        "
+              ),
+              _c(
+                "select",
+                {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.factura.idEmisor,
+                      expression: "factura.idEmisor"
                     }
-                    _vm.$set(_vm.factura, "idEmisor", $event.target.value)
+                  ],
+                  staticClass: "form-control mb-3",
+                  on: {
+                    change: function($event) {
+                      var $$selectedVal = Array.prototype.filter
+                        .call($event.target.options, function(o) {
+                          return o.selected
+                        })
+                        .map(function(o) {
+                          var val = "_value" in o ? o._value : o.value
+                          return val
+                        })
+                      _vm.$set(
+                        _vm.factura,
+                        "idEmisor",
+                        $event.target.multiple
+                          ? $$selectedVal
+                          : $$selectedVal[0]
+                      )
+                    }
                   }
-                }
-              })
+                },
+                _vm._l(_vm.emisores, function(item, index) {
+                  return _c(
+                    "option",
+                    { key: index, domProps: { value: item.id } },
+                    [_vm._v(_vm._s(item.nombreEmisor))]
+                  )
+                }),
+                0
+              )
             ]),
             _vm._v(" "),
             _c("div", [
-              _c("input", {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.factura.idComprador,
-                    expression: "factura.idComprador"
-                  }
-                ],
-                staticClass: "form-control mb-2",
-                attrs: { type: "text", placeholder: "Comprador" },
-                domProps: { value: _vm.factura.idComprador },
-                on: {
-                  input: function($event) {
-                    if ($event.target.composing) {
-                      return
+              _vm._v(
+                "\n                        Comprador:\n                        "
+              ),
+              _c(
+                "select",
+                {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.factura.idComprador,
+                      expression: "factura.idComprador"
                     }
-                    _vm.$set(_vm.factura, "idComprador", $event.target.value)
+                  ],
+                  staticClass: "form-control mb-3",
+                  on: {
+                    change: function($event) {
+                      var $$selectedVal = Array.prototype.filter
+                        .call($event.target.options, function(o) {
+                          return o.selected
+                        })
+                        .map(function(o) {
+                          var val = "_value" in o ? o._value : o.value
+                          return val
+                        })
+                      _vm.$set(
+                        _vm.factura,
+                        "idComprador",
+                        $event.target.multiple
+                          ? $$selectedVal
+                          : $$selectedVal[0]
+                      )
+                    }
                   }
-                }
-              })
+                },
+                _vm._l(_vm.compradores, function(item, index) {
+                  return _c(
+                    "option",
+                    { key: index, domProps: { value: item.id } },
+                    [_vm._v(_vm._s(item.nombreComprador))]
+                  )
+                }),
+                0
+              )
             ]),
             _vm._v(" "),
             _c("div", [
+              _vm._v(
+                "\n                        IVA:\n                        "
+              ),
               _c("input", {
                 directives: [
                   {
@@ -53496,28 +53619,50 @@ var render = function() {
             _vm._v(" "),
             _c("div", { staticClass: "row" }, [
               _c("div", { staticClass: "col-md-4" }, [
-                _vm._v("Producto: "),
-                _c("input", {
-                  directives: [
-                    {
-                      name: "model",
-                      rawName: "v-model",
-                      value: _vm.producto.idProducto,
-                      expression: "producto.idProducto"
-                    }
-                  ],
-                  staticClass: "form-control mb-2",
-                  attrs: { type: "text", placeholder: "Producto" },
-                  domProps: { value: _vm.producto.idProducto },
-                  on: {
-                    input: function($event) {
-                      if ($event.target.composing) {
-                        return
+                _vm._v(
+                  "\n                        Producto:\n                        "
+                ),
+                _c(
+                  "select",
+                  {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.producto.idProducto,
+                        expression: "producto.idProducto"
                       }
-                      _vm.$set(_vm.producto, "idProducto", $event.target.value)
+                    ],
+                    staticClass: "form-control mb-3",
+                    on: {
+                      change: function($event) {
+                        var $$selectedVal = Array.prototype.filter
+                          .call($event.target.options, function(o) {
+                            return o.selected
+                          })
+                          .map(function(o) {
+                            var val = "_value" in o ? o._value : o.value
+                            return val
+                          })
+                        _vm.$set(
+                          _vm.producto,
+                          "idProducto",
+                          $event.target.multiple
+                            ? $$selectedVal
+                            : $$selectedVal[0]
+                        )
+                      }
                     }
-                  }
-                })
+                  },
+                  _vm._l(_vm.inputProductos, function(item, index) {
+                    return _c(
+                      "option",
+                      { key: index, domProps: { value: item.id } },
+                      [_vm._v(_vm._s(item.nombreProducto))]
+                    )
+                  }),
+                  0
+                )
               ]),
               _vm._v(" "),
               _c("div", { staticClass: "col-md-4" }, [
@@ -53549,35 +53694,6 @@ var render = function() {
                 })
               ]),
               _vm._v(" "),
-              _c("div", { staticClass: "col-md-2" }, [
-                _vm._v("Valor: "),
-                _c("input", {
-                  directives: [
-                    {
-                      name: "model",
-                      rawName: "v-model",
-                      value: _vm.producto.valorUnitario,
-                      expression: "producto.valorUnitario"
-                    }
-                  ],
-                  staticClass: "form-control mb-2",
-                  attrs: { type: "number", placeholder: "Valor Unitario" },
-                  domProps: { value: _vm.producto.valorUnitario },
-                  on: {
-                    input: function($event) {
-                      if ($event.target.composing) {
-                        return
-                      }
-                      _vm.$set(
-                        _vm.producto,
-                        "valorUnitario",
-                        $event.target.value
-                      )
-                    }
-                  }
-                })
-              ]),
-              _vm._v(" "),
               _vm._m(3)
             ])
           ]
@@ -53590,7 +53706,7 @@ var render = function() {
             "tbody",
             _vm._l(_vm.productos, function(item, index) {
               return _c("tr", { key: index }, [
-                _c("th", [_vm._v(_vm._s(item.idProducto) + " ")]),
+                _c("th", [_vm._v(_vm._s(item.nombreProducto) + " ")]),
                 _vm._v(" "),
                 _c("th", [_vm._v(_vm._s(item.cantidadProducto) + " ")]),
                 _vm._v(" "),
@@ -53683,6 +53799,12 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "container" }, [
+    _c(
+      "a",
+      { staticClass: "btn btn-primary mb-3", attrs: { href: "facturas" } },
+      [_vm._v("Agregar Factura")]
+    ),
+    _vm._v(" "),
     _c(
       "table",
       {

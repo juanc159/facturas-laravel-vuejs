@@ -25,7 +25,7 @@ class CompradorFactory extends Factory
         return [
             //
             'nombreComprador' => $this->faker->name(),
-            'nitComprador' => $this->faker->text(),
+            'nitComprador' => $this->faker->numberBetween(111111111111,999999999999)
         ];
     }
 }
