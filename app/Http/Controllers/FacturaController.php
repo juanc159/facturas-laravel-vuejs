@@ -13,14 +13,14 @@ class FacturaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
         //
-        if($request->ajax()){
-            return Facturas::all();
-        }else{
+        
             return view('facturas.index');
-        }
+        
+        
+        
     }
 
     public function listarFacturas(){
@@ -70,7 +70,7 @@ class FacturaController extends Controller
      */
     public function show($id)
     {
-        //
+        // 
     }
 
     /**
@@ -105,5 +105,11 @@ class FacturaController extends Controller
     public function destroy($id)
     {
         //
+        $detalleFactura = Detallefactura::where('idDetalleFactura',$id);
+        $detalleFactura->delete();
+
+        $factura = Facturas::find($id);
+        $factura->delete();
+
     }
 }

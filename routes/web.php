@@ -16,17 +16,19 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-Route::get('/', function () {
-    return view('welcome');
-});
-
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+
+//RUTAS PROTEGIDAS CON AUTENTICACION DE usuario
+Route::get('/', function () {
+    return view('home');
+})->middleware('auth');
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home')->middleware('auth');
 
 Route::resource('facturas',FacturaController::class)->middleware('auth');
-Route::get('/listarFacturas', [FacturaController::class, 'listarFacturas'])->name('listarFacturas');
-Route::get('/listarEmisores', [EmisorController::class, 'index'])->name('listarEmisores');
-Route::get('/listarCompradores', [CompradorController::class, 'index'])->name('listarCompradores');
-Route::get('/listarProductos', [ProductosController::class, 'index'])->name('listarProductos');
+Route::get('/listarFacturas', [FacturaController::class, 'listarFacturas'])->name('listarFacturas')->middleware('auth');//VISTA DONDE MUESTRA LAS FACTURAS REALIZADAS
+Route::get('listarEmisores', [EmisorController::class, 'index'])->name('listarEmisores')->middleware('auth');//VISTA PARA CARGAR TODOS LOS EMISORES
+Route::get('listarCompradores', [CompradorController::class, 'index'])->name('listarCompradores')->middleware('auth');//VISTA PARA CARGAR TODOS LOS COMPRADORES
+Route::get('listarProductos', [ProductosController::class, 'index'])->name('listarProductos')->middleware('auth');//VISTA PARA CARGAR TODOS LOS PRODUCTOR

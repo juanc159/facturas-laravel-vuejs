@@ -3,7 +3,7 @@
         <div class="row">
             <div class="col-3">
                 <form @submit.prevent='guardarFactura()'>
-                    <div ><h3>Agregar Factura</h3> </div>
+                    <div ><h3>Agregar Factura </h3> </div>
                         <div >
                             Emisor:
                             <select class="form-control mb-3"   v-model="factura.idEmisor">
@@ -73,7 +73,6 @@
                 emisores: [],
                 compradores: [],
                 inputProductos: [],
-                editarActivo: false,
                 precio: 0,
                 sumatoria:0,
                 productos:[],
@@ -95,26 +94,26 @@
             }
         },
         created(){
-            this.cargarDatos();
+            this.cargarDatos();//CARGA LA INFORMACION SOLICITADA DE LA BASE DE DATOS
         },
         methods:{
             cargarDatos(){
-                axios.get('listarEmisores').then(res=>{
+                axios.get('listarEmisores').then(res=>{// SE CARGAN LOS EMISORES DESDE LA BASE DE DATOS
                     this.emisores = res.data;
                 }),
-                axios.get('listarCompradores').then(res=>{
+                axios.get('listarCompradores').then(res=>{// SE CARGAN LOS COMPRADORES DESDE LA BASE DE DATOS
                     this.compradores = res.data;
                 }),
-                axios.get('listarProductos').then(res=>{
+                axios.get('listarProductos').then(res=>{// SE CARGAN LOS PRODUCTOS DESDE LA BASE DE DATOS
                     this.inputProductos = res.data;
                 })
             },
-            guardarFactura(){
-                if(this.factura.idEmisor <= 0 || this.factura.idComprador <= 0  || this.factura.iva <= 0){
+            guardarFactura(){// SE GUARDA LA FACTURA COMPLETA 
+                if(this.factura.idEmisor <= 0 || this.factura.idComprador <= 0  || this.factura.iva <= 0){// LA VALIDACION PRIMERO
                     alert('Debes completar todos los campos antes de guardar');
                     return;
                 }
-                this.factura.valorFinal= this.sumatoria + (this.sumatoria * this.factura.iva /100);
+                this.factura.valorFinal= this.sumatoria + (this.sumatoria * this.factura.iva /100); //EL CALCULO CON EL iva
                 
                 const parametros = {
                     idEmisor: this.factura.idEmisor,
@@ -125,8 +124,9 @@
                     productos: this.productos
                 };                
                 
-                
-                axios.post('facturas',parametros)
+                //aqui se guarda la FACtura enviandose toda la informacion al controllador
+                //donde primero guarda el detalle y luego la factura
+                axios.post('facturas',parametros) 
                     .then(res => {
                         console.log('exito');
                         this.factura.idEmisor = '';
@@ -138,13 +138,14 @@
                     });
             },      
             agregarProducto(){
-                if(this.producto.idProducto === '' || this.producto.cantidadProducto <= 0  ){
+                //agrega productos al array PRODUCTOS para ser vistos
+                if(this.producto.idProducto === '' || this.producto.cantidadProducto <= 0  ){ //revisa que que no esten vacios
                     alert('Revise los campos que desea Guardar');
                     return;
                 }
                 
 
-                this.inputProductos.forEach(element => {
+                this.inputProductos.forEach(element => {//aqui compara los ID para que muestre el NOMBRE real
                         //console.log(element.nombreProducto);
                             if(element.id===this.producto.idProducto){
                                 this.producto.nombreProducto = element.nombreProducto;
@@ -162,12 +163,13 @@
                     valorUnitario: this.producto.valorUnitario,
                     valorTotal: this.producto.valorTotal
                 };
-                this.productos.push(parametros);
+                this.productos.push(parametros);// ya calculado los agrega al array PRODUCTOS
                 this.sumatoria = 0;
                 this.productos.forEach(element => {
                     this.sumatoria = this.sumatoria + element.valorTotal ;
                 });
-                console.log(this.productos);
+                //console.log(this.productos);
+                //SE PONEN LOS CAMPOS VACION PARA QUE EL USUARIO AGREGE OTRO PRODUCTO SI LO DESEA
                 this.producto.idProducto = '';
                 this.producto.cantidadProducto = '';
                 this.producto.valorUnitario = '';

@@ -1954,7 +1954,6 @@ __webpack_require__.r(__webpack_exports__);
       emisores: [],
       compradores: [],
       inputProductos: [],
-      editarActivo: false,
       precio: 0,
       sumatoria: 0,
       productos: [],
@@ -1977,29 +1976,35 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   created: function created() {
-    this.cargarDatos();
+    this.cargarDatos(); //CARGA LA INFORMACION SOLICITADA DE LA BASE DE DATOS
   },
   methods: {
     cargarDatos: function cargarDatos() {
       var _this = this;
 
       axios.get('listarEmisores').then(function (res) {
+        // SE CARGAN LOS EMISORES DESDE LA BASE DE DATOS
         _this.emisores = res.data;
       }), axios.get('listarCompradores').then(function (res) {
+        // SE CARGAN LOS COMPRADORES DESDE LA BASE DE DATOS
         _this.compradores = res.data;
       }), axios.get('listarProductos').then(function (res) {
+        // SE CARGAN LOS PRODUCTOS DESDE LA BASE DE DATOS
         _this.inputProductos = res.data;
       });
     },
     guardarFactura: function guardarFactura() {
       var _this2 = this;
 
+      // SE GUARDA LA FACTURA COMPLETA 
       if (this.factura.idEmisor <= 0 || this.factura.idComprador <= 0 || this.factura.iva <= 0) {
+        // LA VALIDACION PRIMERO
         alert('Debes completar todos los campos antes de guardar');
         return;
       }
 
-      this.factura.valorFinal = this.sumatoria + this.sumatoria * this.factura.iva / 100;
+      this.factura.valorFinal = this.sumatoria + this.sumatoria * this.factura.iva / 100; //EL CALCULO CON EL iva
+
       var parametros = {
         idEmisor: this.factura.idEmisor,
         idComprador: this.factura.idComprador,
@@ -2007,7 +2012,9 @@ __webpack_require__.r(__webpack_exports__);
         valorFactura: this.sumatoria,
         valorFinal: this.factura.valorFinal,
         productos: this.productos
-      };
+      }; //aqui se guarda la FACtura enviandose toda la informacion al controllador
+      //donde primero guarda el detalle y luego la factura
+
       axios.post('facturas', parametros).then(function (res) {
         console.log('exito');
         _this2.factura.idEmisor = '';
@@ -2021,12 +2028,15 @@ __webpack_require__.r(__webpack_exports__);
     agregarProducto: function agregarProducto() {
       var _this3 = this;
 
+      //agrega productos al array PRODUCTOS para ser vistos
       if (this.producto.idProducto === '' || this.producto.cantidadProducto <= 0) {
+        //revisa que que no esten vacios
         alert('Revise los campos que desea Guardar');
         return;
       }
 
       this.inputProductos.forEach(function (element) {
+        //aqui compara los ID para que muestre el NOMBRE real
         //console.log(element.nombreProducto);
         if (element.id === _this3.producto.idProducto) {
           _this3.producto.nombreProducto = element.nombreProducto;
@@ -2042,12 +2052,14 @@ __webpack_require__.r(__webpack_exports__);
         valorUnitario: this.producto.valorUnitario,
         valorTotal: this.producto.valorTotal
       };
-      this.productos.push(parametros);
+      this.productos.push(parametros); // ya calculado los agrega al array PRODUCTOS
+
       this.sumatoria = 0;
       this.productos.forEach(function (element) {
         _this3.sumatoria = _this3.sumatoria + element.valorTotal;
-      });
-      console.log(this.productos);
+      }); //console.log(this.productos);
+      //SE PONEN LOS CAMPOS VACION PARA QUE EL USUARIO AGREGE OTRO PRODUCTO SI LO DESEA
+
       this.producto.idProducto = '';
       this.producto.cantidadProducto = '';
       this.producto.valorUnitario = '';
@@ -2102,6 +2114,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   data: function data() {
@@ -2112,50 +2130,63 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   created: function created() {
-    this.cargarDatos();
-    this.getFacturas();
+    this.cargarDatos(); // CARGA EN UN ARRAY LOS COMPRADORES Y EMISORES RESGUARDADOS EN LA BASE DE DATOS
+
+    this.getFacturas(); //CARGA TODAS LAS FACTURAS DE LA BASE DE DATOS
   },
   methods: {
     cargarDatos: function cargarDatos() {
       var _this = this;
 
       axios.get('listarEmisores').then(function (res) {
-        _this.emisores = res.data;
+        _this.emisores = res.data; //RESGUARDA EN LA VARIABLE TODOS LOS EMISORES Q ESTAN EN LA BASE DE DATOS
       }), axios.get('listarCompradores').then(function (res) {
-        _this.compradores = res.data;
+        _this.compradores = res.data; //RESGUARDA EN LA VARIABLE TODOS LOS COMPRADORES Q ESTAN EN LA BASE DE DATOS
       });
     },
     tabla: function tabla() {
+      //METODO PARA CARGAR LOS REGISTROS EN DATATABLE
       this.$nextTick(function () {
         $('#example').DataTable();
       });
     },
-    getFacturas: function getFacturas() {
+    eliminarFactura: function eliminarFactura(item, index) {
       var _this2 = this;
+
+      //ELIMINA REGISTROS TANTO EN LA TABLA DETALLE FACTURA COMO LA FACTURA
+      axios["delete"]("facturas/".concat(item.id)).then(function (res) {
+        //console.log('eliminar');
+        _this2.facturas.splice(index, 1); //ELIMINA EL REGISTRO DEL ARRAY FACTURAS PARA Q CUNDO SE CARGUE EL DATABASE NO APARESCA
+
+      });
+    },
+    getFacturas: function getFacturas() {
+      var _this3 = this;
 
       axios.get('listarFacturas').then(function (res) {
         // listatodas las facturas de la tabla factura
-        _this2.facturas = res.data;
+        _this3.facturas = res.data; //SE RECORRE EL ARRAY FACTURAS Y DENTRO EL ARRAY EMISORES Y COMPRADORES PARA QUE MUESTRE LOS NOMBRES Y NO LOS ID
+        //ESTO ES SOLO PARA MOSTRAR NO PARA GUARDAR
 
-        _this2.facturas.forEach(function (element) {
-          _this2.emisores.forEach(function (element1) {
-            //element1 = emisores
+        _this3.facturas.forEach(function (element) {
+          _this3.emisores.forEach(function (element1) {
             if (element1.id === element.idEmisor) {
-              //elemento = facturas
+              //SI EL ELEMENTO CONINCIDE GUARDA EL NOMBRE EN LA VAIRABLE EN VEZ DEL ID
               element.idEmisor = element1.nombreEmisor;
             }
           });
 
-          _this2.compradores.forEach(function (element2) {
+          _this3.compradores.forEach(function (element2) {
             if (element2.id === element.idComprador) {
+              //SI EL ELEMENTO CONINCIDE GUARDA EL NOMBRE EN LA VAIRABLE EN VEZ DEL ID
               element.idComprador = element2.nombreComprador;
             }
           });
-        });
+        }); //console.log(this.facturas); //ya 
 
-        console.log(_this2.facturas); //ya 
 
-        _this2.tabla();
+        _this3.tabla(); //GENERAL EL  DATATABLE
+
       });
     }
   }
@@ -53731,7 +53762,7 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", [_c("h3", [_vm._v("Agregar Factura")])])
+    return _c("div", [_c("h3", [_vm._v("Agregar Factura ")])])
   },
   function() {
     var _vm = this
@@ -53801,7 +53832,7 @@ var render = function() {
   return _c("div", { staticClass: "container" }, [
     _c(
       "a",
-      { staticClass: "btn btn-primary mb-3", attrs: { href: "facturas" } },
+      { staticClass: "btn btn-success mb-3", attrs: { href: "facturas" } },
       [_vm._v("Agregar Factura")]
     ),
     _vm._v(" "),
@@ -53831,7 +53862,31 @@ var render = function() {
               _vm._v(" "),
               _c("td", [_vm._v(_vm._s(item.iva))]),
               _vm._v(" "),
-              _c("td", [_vm._v(_vm._s(item.valorFinal))])
+              _c("td", [_vm._v(_vm._s(item.valorFinal))]),
+              _vm._v(" "),
+              _c("td", [
+                _c(
+                  "a",
+                  {
+                    staticClass: "btn btn-primary ml-3",
+                    attrs: { href: "facturas/" + item.id + "/edit" }
+                  },
+                  [_vm._v(" VER")]
+                ),
+                _vm._v(" "),
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-danger",
+                    on: {
+                      click: function($event) {
+                        return _vm.eliminarFactura(item, index)
+                      }
+                    }
+                  },
+                  [_vm._v(" ELIMINAR")]
+                )
+              ])
             ])
           }),
           0
@@ -53859,7 +53914,9 @@ var staticRenderFns = [
         _vm._v(" "),
         _c("th", [_vm._v("Iva")]),
         _vm._v(" "),
-        _c("th", [_vm._v("Valor Final")])
+        _c("th", [_vm._v("Valor Final")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("ACCIONES")])
       ])
     ])
   }

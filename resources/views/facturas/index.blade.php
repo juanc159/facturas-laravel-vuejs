@@ -7,7 +7,7 @@
             <div class="card">
                 <div class="card-header">Facturas</div>
 
-                <div class="card-body">
+                <div class="card-body">                
                     <factura />
                 </div>
             </div>
